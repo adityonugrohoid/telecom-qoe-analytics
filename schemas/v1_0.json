@@ -1,0 +1,84 @@
+{
+  "version": "v1_0",
+  "tables": {
+    "users": {
+      "primary_key": ["user_id"],
+      "required_columns": [
+        { "name": "user_id", "dtype": "string" },
+        { "name": "home_province", "dtype": "string" },
+        { "name": "zone", "dtype": "string" },
+        { "name": "plan_type", "dtype": "string" },
+        { "name": "segment", "dtype": "string" },
+        { "name": "tenure_days", "dtype": "int64" },
+        { "name": "arpu", "dtype": "double" },
+        { "name": "device_class", "dtype": "string" }
+      ]
+    },
+    "cells": {
+      "primary_key": ["cell_id"],
+      "required_columns": [
+        { "name": "cell_id", "dtype": "string" },
+        { "name": "province", "dtype": "string" },
+        { "name": "zone", "dtype": "string" },
+        { "name": "band", "dtype": "string" },
+        { "name": "bandwidth_mhz", "dtype": "int64" },
+        { "name": "backhaul_capacity_mbps", "dtype": "double" }
+      ]
+    },
+    "sessions": {
+      "primary_key": ["session_id"],
+      "foreign_keys": {
+        "user_id": "users.user_id",
+        "cell_id": "cells.cell_id"
+      },
+      "required_columns": [
+        { "name": "session_id", "dtype": "string" },
+        { "name": "user_id", "dtype": "string" },
+        { "name": "cell_id", "dtype": "string" },
+        { "name": "timestamp_start", "dtype": "timestamp[ns]" },
+        { "name": "duration_sec", "dtype": "int64" },
+        { "name": "app_type", "dtype": "string" },
+        { "name": "utilization_pct_hourly", "dtype": "double" },
+        { "name": "congestion_flag", "dtype": "bool" },
+        { "name": "bandwidth_mhz", "dtype": "int64" },
+        { "name": "dl_throughput_mbps", "dtype": "double" },
+        { "name": "ul_throughput_mbps", "dtype": "double" },
+        { "name": "latency_ms", "dtype": "double" },
+        { "name": "jitter_ms", "dtype": "double" },
+        { "name": "packet_loss_pct", "dtype": "double" },
+        { "name": "buffering_ratio", "dtype": "double" },
+        { "name": "qoe_score", "dtype": "double" }
+      ]
+    },
+    "events": {
+      "primary_key": ["event_id"],
+      "foreign_keys": {
+        "user_id": "users.user_id",
+        "session_id": "sessions.session_id",
+        "cell_id": "cells.cell_id"
+      },
+      "required_columns": [
+        { "name": "event_id", "dtype": "string" },
+        { "name": "user_id", "dtype": "string" },
+        { "name": "session_id", "dtype": "string" },
+        { "name": "event_type", "dtype": "string" },
+        { "name": "severity", "dtype": "int64" },
+        { "name": "timestamp", "dtype": "timestamp[ns]" },
+        { "name": "cell_id", "dtype": "string" }
+      ],
+      "optional_columns": [
+        { "name": "episode_hours", "dtype": "double" },
+        { "name": "episode_max_util", "dtype": "double" },
+        { "name": "zone", "dtype": "string" },
+        { "name": "duration_min", "dtype": "double" }
+      ],
+      "notes": {
+        "nullability": {
+          "user_id": "may be null for network-scoped events",
+          "session_id": "may be null for network-scoped events",
+          "cell_id": "may be null if event is user-scoped only"
+        }
+      }
+    }
+  }
+}
