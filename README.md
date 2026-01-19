@@ -3,11 +3,20 @@
 ![Python](https://img.shields.io/badge/python-3.11+-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
+![POC](https://img.shields.io/badge/readiness-poc-orange.svg)
 
-> 🔗 **Part of the Digital Twin Project** | Data Science Practice  
+> 🔗 **Part of the Digital Twin Project** | Data Science Practice
+
+## Production Readiness
+
+**Level: POC**
+
+This project demonstrates comprehensive data science methodology with:
+- **Six-phase analytics pipeline** from EDA to strategic insights
+- **Statistical rigor** with ANOVA and effect size analysis
+- **SHAP interpretability** for model explainability
+- **Production-ready models** with realistic performance metrics (R² = 0.72, ROC-AUC = 0.96)  
 > Uses data from: [Telecom Digital Twin](https://github.com/adityonugrohoid/telecom-digital-twin) - Synthetic Data Generator
-
----
 
 ## Table of Contents
 - [Overview](#overview)
@@ -19,8 +28,7 @@
 - [Setup & Usage](#setup--usage)
 - [Author](#author)
 - [License](#license)
-
----
+- [Notable Code](#notable-code)
 
 ## Overview
 
@@ -69,19 +77,19 @@ The analysis is structured into a logical sequence of Jupyter notebooks, each ad
 **Goal:** Move beyond correlation to understand drivers of degradation.
 - **Hypothesis Testing (ANOVA):** Confirmed statistically significant QoE differences between user segments (Prepaid vs. Postpaid).
 - **Effect Size Analysis:** Calculated **Cohen's d** for various factors.
-- **Key Insight:** Cell Congestion has a massive effect size (**d = -2.75**) on QoE, far outweighing other collected metrics. This identified congestion as the primary "villain" to fight.
+- **Key Insight:** Cell Congestion has a massive effect size (**d = -2.12**) on QoE, far outweighing other collected metrics. This identified congestion as the primary "villain" to fight.
 
 ### 🤖 [03: ML Regression - QoE Prediction](notebooks/03_ml_regression.ipynb)
 **Goal:** Predict exact QoE scores based on network conditions.
 - **Model:** XGBoost Regressor tuned with Optuna.
-- **Performance:** Achieved a **Test MAE of 0.0097** and **R2 score of 0.9997**.
-- **Feature Importance:** Latency (`latency_ms`) and Congestion were identified as the most critical predictors, guiding engineering teams to focus on speed and capacity managed.
+- **Performance:** Achieved a **Test MAE of 0.3672**, **RMSE of 0.4560**, and **R² score of 0.7247**.
+- **Feature Importance:** Latency (`latency_ms`) and Congestion were identified as the most critical predictors, guiding engineering teams to focus on speed and capacity management.
 
 ### 🚦 [04: ML Classification - Degradation Prediction](notebooks/04_ml_classification.ipynb)
 **Goal:** Proactively identify "Low QoE" events to trigger support or intervention.
 - **Model:** LightGBM Classifier handling class imbalance.
-- **Performance:** Achieved near-perfect identification with **ROC-AUC of 1.00**, **Precision of 0.97**, and **Recall of 1.00** for the minority "Low QoE" class.
-- **Application:** This model can serve as the engine for a "Customer Experience Management" (CEM) dashboard, flagging unhappy users in near real-time.
+- **Performance:** Achieved strong performance with **ROC-AUC of 0.9645**, **Precision of 0.46**, and **Recall of 0.92** for the minority "Low QoE" class.
+- **Application:** This model can serve as the engine for a "Customer Experience Management" (CEM) dashboard, flagging at-risk sessions with excellent recall for proactive intervention.
 
 ### 🕵️ [05: Unsupervised Learning & Anomaly Detection](notebooks/05_unsupervised_timeseries.ipynb)
 **Goal:** Detect unknown unknowns and network anomalies.
@@ -92,17 +100,16 @@ The analysis is structured into a logical sequence of Jupyter notebooks, each ad
 ### 📑 [06: Executive Summary & Strategic Insights](notebooks/06_executive_summary.ipynb)
 **Goal:** Translate technical findings into business value.
 - **Strategic Recommendations:**
-    1.  **Prioritize Backhaul Expansion:** Driven by the -2.75 effect size of congestion.
+    1.  **Prioritize Backhaul Expansion:** Driven by the -2.12 effect size of congestion.
     2.  **Optimize Latency:** The top feature for predictive models.
     3.  **Proactive Alerts:** Deploy the Anomaly Detection model to catch evening peak failures before customers complain.
+    4.  **Model Deployment:** The regression model (R² = 0.72) is suitable for real-time QoE prediction, while the classification model (ROC-AUC = 0.96) excels at identifying at-risk sessions.
 
 ## Dataset
 The project uses a high-fidelity synthetic dataset generated to mimic realistic telecom network physics, encompassing:
 - **Users:** Demographics, device types, and plans.
 - **Cells:** Tower locations, bands (L900, L1800, L2100, etc.), and capacity.
 - **Sessions:** Granular connection logs with Throughput, Latency, Jitter, Packet Loss, and calculcated QoE MOS.
-
----
 
 ## Setup & Usage (using uv)
 
@@ -130,17 +137,21 @@ Launch the Jupyter interface within the managed environment:
 uv run jupyter lab
 ```
 
----
+## Notable Code
 
-## Author
+This repository demonstrates comprehensive data science methodology. See [NOTABLE_CODE.md](NOTABLE_CODE.md) for detailed code examples highlighting:
 
-**Adityo Nugroho**  
-- 📧 Email: [adityo.nugroho.id@gmail.com](mailto:adityo.nugroho.id@gmail.com)
-- 💻 GitHub: [@adityonugrohoid](https://github.com/adityonugrohoid)
-- 💼 LinkedIn: [adityonugrohoid](https://www.linkedin.com/in/adityonugrohoid)
-
----
+- Six-phase analytics pipeline implementation
+- Statistical rigor with ANOVA and effect size analysis
+- SHAP interpretability for model explainability
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Author
+
+**Adityo Nugroho**  
+- Portfolio: https://adityonugrohoid.github.io  
+- GitHub: https://github.com/adityonugrohoid  
+- LinkedIn: https://www.linkedin.com/in/adityonugrohoid/
