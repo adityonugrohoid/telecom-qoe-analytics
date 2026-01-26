@@ -1,7 +1,5 @@
 # Notable Code: Telecom QoE Analytics
 
-**Production Readiness Level:** POC
-
 This document highlights key code sections that demonstrate the technical strengths and methodological patterns implemented in this data science portfolio project.
 
 ## Overview

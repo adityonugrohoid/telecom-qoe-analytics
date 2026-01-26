@@ -21,3 +21,4 @@ data/final/*
 
 # Internal
 _private/
+project-metadata.json

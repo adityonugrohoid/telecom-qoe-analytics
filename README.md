@@ -3,19 +3,9 @@
 ![Python](https://img.shields.io/badge/python-3.11+-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
-![POC](https://img.shields.io/badge/readiness-poc-orange.svg)
+![DIGITALTWINProject](https://img.shields.io/badge/project-DIGITAL%20TWIN-blueviolet.svg)
 
-> 🔗 **Part of the Digital Twin Project** | Data Science Practice
-
-## Production Readiness
-
-**Level: POC**
-
-This project demonstrates comprehensive data science methodology with:
-- **Six-phase analytics pipeline** from EDA to strategic insights
-- **Statistical rigor** with ANOVA and effect size analysis
-- **SHAP interpretability** for model explainability
-- **Production-ready models** with realistic performance metrics (R² = 0.72, ROC-AUC = 0.96)  
+> 🔗 **Part of the Digital Twin Project** | Data Science Practice  
 > Uses data from: [Telecom Digital Twin](https://github.com/adityonugrohoid/telecom-digital-twin) - Synthetic Data Generator
 
 ## Table of Contents
