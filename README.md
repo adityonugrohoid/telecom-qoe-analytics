@@ -2,7 +2,9 @@
 
 # Telecom QoE Analytics
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+[![uv](https://img.shields.io/badge/uv-package%20manager-blueviolet)](https://github.com/astral-sh/uv)
+[![XGBoost](https://img.shields.io/badge/XGBoost-3.0%2B-orange.svg)](https://xgboost.readthedocs.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 **Six-phase EDA-to-ML analytics pipeline for telecom Quality of Experience data**
@@ -250,7 +252,7 @@ telecom-qoe-analytics/
 
 | Project | Description |
 |---------|-------------|
-| [telecom-digital-twin](https://github.com/adityonugrohoid/telecom-digital-twin) | Synthetic telecom network data generator; produces the `users`, `cells`, and `sessions` datasets consumed by this repo |
+| [telecom-digital-twin](https://github.com/adityonugrohoid/telecom-digital-twin) | Deterministic synthetic LTE dataset generator with physics-based network KPIs |
 
 ## License
 
