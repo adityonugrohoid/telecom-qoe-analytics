@@ -1,147 +1,261 @@
-# Telecom QoE Analytics: Data Science Practice
+<div align="center">
 
-![Python](https://img.shields.io/badge/python-3.11+-blue.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
-![Status](https://img.shields.io/badge/status-active-success.svg)
-![DIGITALTWINProject](https://img.shields.io/badge/project-DIGITAL%20TWIN-blueviolet.svg)
+# Telecom QoE Analytics
 
-> 🔗 **Part of the Digital Twin Project** | Data Science Practice  
-> Uses data from: [Telecom Digital Twin](https://github.com/adityonugrohoid/telecom-digital-twin) - Synthetic Data Generator
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+**Six-phase EDA-to-ML analytics pipeline for telecom Quality of Experience data**
+
+[Getting Started](#getting-started) | [Usage](#usage) | [Methodology](#methodology)
+
+</div>
+
+---
 
 ## Table of Contents
-- [Overview](#overview)
-- [Key Features](#key-features)
-- [Methodological Decisions](#methodological-decisions)
-- [Prerequisites](#prerequisites)
+
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [The Problem](#the-problem)
+- [Architecture](#architecture)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+- [Usage](#usage)
+- [Methodology](#methodology)
+- [Results](#results)
+- [Data Engineering](#data-engineering)
+- [Architectural Decisions](#architectural-decisions)
 - [Project Structure](#project-structure)
-- [Dataset](#dataset)
-- [Setup & Usage](#setup--usage)
-- [Author](#author)
+- [Related Projects](#related-projects)
 - [License](#license)
-- [Notable Code](#notable-code)
+- [Author](#author)
 
-## Overview
+## The Problem
 
-This repository serves as a comprehensive Data Science Practice project utilizing a **synthetic telecom-digital-twin dataset**. The primary objective is to demonstrate end-to-end analytics capability—from raw data profiling and rigorous statistical testing to advanced machine learning modeling and strategic troubleshooting—focused on improving Quality of Experience (QoE) in a telecommunications network.
+### QoE Degradation in Telecom Networks
 
-## Key Features
+Telecom operators collect dense session-level telemetry (throughput, latency, jitter, packet loss) but lack a systematic path from raw data to ranked, actionable interventions. Without structured analytics, root causes stay buried and SLA risks go undetected until customers churn.
 
-🔬 **Six-Phase Analytics Pipeline** - Structured approach from EDA to strategic insights  
-📊 **Statistical Rigor** - Hypothesis testing, effect size analysis, and causal inference  
-🤖 **Advanced ML Models** - XGBoost, LightGBM, clustering, and anomaly detection  
-📈 **Business Translation** - Technical findings converted to actionable recommendations  
-🎯 **Production-Ready Code** - Modular design with automated schema validation  
+### The Solution
 
-## Methodological Decisions
+This project applies a six-phase data science pipeline to synthetic telecom session data, moving from EDA and statistical testing through gradient-boosted ML models and unsupervised anomaly detection to produce prioritized network improvement recommendations backed by SHAP attribution and effect-size evidence.
 
-This project simulates a real-world "Root Cause Analysis" workflow. The modeling choices prioritize **interpretability** and **actionability** over theoretical complexity.
+## Features
 
-### 1. Model Selection: Gradient Boosting (XGBoost/LightGBM) vs. Deep Learning
-* **Decision:** Utilized Tree-based ensembles (XGBoost, LightGBM) instead of Neural Networks.
-* **Reasoning:** Telecom data is tabular and heterogeneous. Tree-based models natively handle non-linear feature interactions (e.g., `Congestion` × `Signal Strength`) and offer superior explainability via SHAP values. In an operational context, being able to tell a Field Engineer *why* a cell is degraded (Feature Importance) is as valuable as the prediction itself.
+- **Six-phase notebook pipeline** - Data profiling, statistical analysis, regression, classification, anomaly detection, and executive summary in sequential Jupyter notebooks
+- **Schema-validated data loading** - Pandera-backed validation of `users`, `cells`, and `sessions` parquet tables via a shared `src/` module
+- **SHAP interpretability** - Feature attribution using SHAP values across XGBoost and LightGBM models, not just gain metrics
+- **Time-aware ML splits** - Temporal train/val/test splits (70/15/15) to avoid leakage in session-level data
+- **Anomaly detection** - STL decomposition followed by Isolation Forest to surface unknown network events
+- **Optuna hyperparameter tuning** - Automated search for regression and classification model configs
 
-### 2. Interpretability: SHAP vs. Gain Metrics
-* **Decision:** Adopted SHAP (SHapley Additive exPlanations) for feature attribution.
-* **Reasoning:** Standard "Information Gain" metrics are biased towards high-cardinality features. SHAP provides a game-theoretic guarantees of consistency. This allowed us to prove that **Congestion** (and not just Signal Strength) was the primary driver of low QoE, directly influencing the recommendation to prioritize backhaul expansion.
+## Tech Stack
 
-### 3. Metric Selection: Recall vs. Precision
-* **Decision:** Prioritized **Recall** (Sensitivity) for the Anomaly Detection model.
-* **Reasoning:** In network operations, a "False Negative" (missing a major outage) is far more costly than a "False Positive" (investigating a false alarm). The model threshold was tuned to maximize the capture rate of "Low QoE" events to ensure SLA compliance.
+| Component | Technology |
+|-----------|------------|
+| Language | Python 3.10+ |
+| Notebooks | Jupyter Lab |
+| ML Models | XGBoost 3.x, LightGBM 4.x, scikit-learn |
+| Explainability | SHAP |
+| Hyperparameter Tuning | Optuna |
+| Statistical Analysis | statsmodels, scipy |
+| Data Validation | Pandera |
+| Dependency Management | uv |
+| Experiment Tracking | MLflow, Weights and Biases |
 
-## Prerequisites
+## Architecture
 
-This project requires data generated from the [Telecom Digital Twin](https://github.com/adityonugrohoid/telecom-digital-twin) repository. Generate the dataset first before running these analytics notebooks.
+```mermaid
+graph TD
+    A["telecom-digital-twin<br/>Synthetic Data Generator"] --> B["data/final/<br/>users · cells · sessions (Parquet)"]
+    B --> C["src/telecom_qoe_analytics<br/>data_loader · schema · Pandera validation"]
+    C --> D["01_data_profiling_eda<br/>Distribution · Missing · QoE landscape"]
+    D --> E["02_statistical_analysis<br/>ANOVA · Cohen's d · Causal inference"]
+    E --> F["03_ml_regression<br/>XGBoost + Optuna (MAE 0.37, R2 0.72)"]
+    E --> G["04_ml_classification<br/>LightGBM + SHAP (ROC-AUC 0.96)"]
+    E --> H["05_unsupervised_timeseries<br/>STL + Isolation Forest"]
+    F --> I["06_executive_summary<br/>Strategic recommendations"]
+    G --> I
+    H --> I
 
-## Project Structure
-
-The analysis is structured into a logical sequence of Jupyter notebooks, each addressing a specific phase of the data science lifecycle.
-
-### 🔬 [01: Data Profiling & Exploratory QoE Landscape](notebooks/01_data_profiling_eda.ipynb)
-**Goal:** Establish data trust and understand the baseline performance.
-- **Schema Validation:** Automated checks ensured `users`, `cells`, and `sessions` tables were consistent for merging.
-- **Missing Value Analysis:** identified network-scoped gaps vs. systematic sensor failures.
-- **QoE Distribution:** Revealed the bimodal nature of user experience ('Happy' vs 'Suffering' users) and verified skewed distributions.
-- **Key Insight:** Video streaming applications showed significant variability in experience compared to Chat or Web Browsing.
-
-### 📊 [02: Statistical Analysis & Causal Inference](notebooks/02_statistical_analysis.ipynb)
-**Goal:** Move beyond correlation to understand drivers of degradation.
-- **Hypothesis Testing (ANOVA):** Confirmed statistically significant QoE differences between user segments (Prepaid vs. Postpaid).
-- **Effect Size Analysis:** Calculated **Cohen's d** for various factors.
-- **Key Insight:** Cell Congestion has a massive effect size (**d = -2.12**) on QoE, far outweighing other collected metrics. This identified congestion as the primary "villain" to fight.
-
-### 🤖 [03: ML Regression - QoE Prediction](notebooks/03_ml_regression.ipynb)
-**Goal:** Predict exact QoE scores based on network conditions.
-- **Model:** XGBoost Regressor tuned with Optuna.
-- **Performance:** Achieved a **Test MAE of 0.3672**, **RMSE of 0.4560**, and **R² score of 0.7247**.
-- **Feature Importance:** Latency (`latency_ms`) and Congestion were identified as the most critical predictors, guiding engineering teams to focus on speed and capacity management.
-
-### 🚦 [04: ML Classification - Degradation Prediction](notebooks/04_ml_classification.ipynb)
-**Goal:** Proactively identify "Low QoE" events to trigger support or intervention.
-- **Model:** LightGBM Classifier handling class imbalance.
-- **Performance:** Achieved strong performance with **ROC-AUC of 0.9645**, **Precision of 0.46**, and **Recall of 0.92** for the minority "Low QoE" class.
-- **Application:** This model can serve as the engine for a "Customer Experience Management" (CEM) dashboard, flagging at-risk sessions with excellent recall for proactive intervention.
-
-### 🕵️ [05: Unsupervised Learning & Anomaly Detection](notebooks/05_unsupervised_timeseries.ipynb)
-**Goal:** Detect unknown unknowns and network anomalies.
-- **Technique:** STL Decomposition for time-series trend/seasonality removal, followed by Isolation Forest.
-- **Findings:** Successfully isolated anomalies (~5% of data) that deviated from daily patterns.
-- **Key Insight:** Anomalies frequently clustered around **5 PM (Busy Hour)**, suggesting a correlation with peak load stress testing or specific maintenance windows.
-
-### 📑 [06: Executive Summary & Strategic Insights](notebooks/06_executive_summary.ipynb)
-**Goal:** Translate technical findings into business value.
-- **Strategic Recommendations:**
-    1.  **Prioritize Backhaul Expansion:** Driven by the -2.12 effect size of congestion.
-    2.  **Optimize Latency:** The top feature for predictive models.
-    3.  **Proactive Alerts:** Deploy the Anomaly Detection model to catch evening peak failures before customers complain.
-    4.  **Model Deployment:** The regression model (R² = 0.72) is suitable for real-time QoE prediction, while the classification model (ROC-AUC = 0.96) excels at identifying at-risk sessions.
-
-## Dataset
-The project uses a high-fidelity synthetic dataset generated to mimic realistic telecom network physics, encompassing:
-- **Users:** Demographics, device types, and plans.
-- **Cells:** Tower locations, bands (L900, L1800, L2100, etc.), and capacity.
-- **Sessions:** Granular connection logs with Throughput, Latency, Jitter, Packet Loss, and calculcated QoE MOS.
-
-## Setup & Usage (using uv)
-
-This project uses [uv](https://github.com/astral-sh/uv) for fast and reliable dependency management.
-
-### 1. Install uv
-If you haven't already, install `uv`:
-```bash
-# On macOS/Linux
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# On Windows (PowerShell)
-powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+    style A fill:#0f3460,color:#fff
+    style B fill:#16213e,color:#fff
+    style C fill:#533483,color:#fff
+    style D fill:#0f3460,color:#fff
+    style E fill:#16213e,color:#fff
+    style F fill:#533483,color:#fff
+    style G fill:#533483,color:#fff
+    style H fill:#533483,color:#fff
+    style I fill:#0f3460,color:#fff
 ```
 
-### 2. Install Dependencies
-Sync the environment with the `pyproject.toml` configuration:
-```bash
-uv sync
-```
+## Getting Started
 
-### 3. Run Notebooks
-Launch the Jupyter interface within the managed environment:
+### Prerequisites
+
+- Python 3.10+
+- [uv](https://github.com/astral-sh/uv) package manager
+- Parquet dataset files generated by [telecom-digital-twin](https://github.com/adityonugrohoid/telecom-digital-twin) - place under `data/final/`
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/adityonugrohoid/telecom-qoe-analytics.git
+   cd telecom-qoe-analytics
+   ```
+
+2. Install dependencies with uv:
+   ```bash
+   uv sync
+   ```
+
+## Usage
+
+Launch Jupyter Lab within the managed environment:
+
 ```bash
 uv run jupyter lab
 ```
 
-## Notable Code
+Run notebooks in order:
 
-This repository demonstrates comprehensive data science methodology. See [NOTABLE_CODE.md](NOTABLE_CODE.md) for detailed code examples highlighting:
+```
+notebooks/01_data_profiling_eda.ipynb
+notebooks/02_statistical_analysis.ipynb
+notebooks/03_ml_regression.ipynb
+notebooks/04_ml_classification.ipynb
+notebooks/05_unsupervised_timeseries.ipynb
+notebooks/06_executive_summary.ipynb
+```
 
-- Six-phase analytics pipeline implementation
-- Statistical rigor with ANOVA and effect size analysis
-- SHAP interpretability for model explainability
+The shared data loader is also importable directly:
+
+```python
+from telecom_qoe_analytics.data_loader import get_merged_dataset, get_time_split
+
+df = get_merged_dataset(include_users=True, include_cells=True)
+train, val, test = get_time_split(df, time_col="timestamp_start")
+```
+
+## Methodology
+
+### Problem Framing
+
+| Attribute | Value |
+|-----------|-------|
+| Problem Type | Regression + Classification + Anomaly Detection |
+| Target Variable | `qoe_score` (MOS-based, continuous) |
+| Primary Metrics | MAE / RMSE / R2 (regression), ROC-AUC / Recall (classification) |
+| Key Challenge | Class imbalance in Low QoE detection, temporal leakage prevention |
+
+### Training Approach
+
+| Phase | Algorithm | Validation |
+|-------|-----------|------------|
+| Regression (nb 03) | XGBoost Regressor, Optuna-tuned | Temporal 70/15/15 split |
+| Classification (nb 04) | LightGBM Classifier, imbalance-handled | Temporal 70/15/15 split, SHAP |
+| Anomaly Detection (nb 05) | STL Decomposition + Isolation Forest | Unsupervised; ~5% anomaly rate |
+
+## Results
+
+### Key Findings
+
+| Model | Metric | Score | Notes |
+|-------|--------|-------|-------|
+| XGBoost Regression | MAE | 0.3672 | QoE score prediction |
+| XGBoost Regression | RMSE | 0.4560 | - |
+| XGBoost Regression | R2 | 0.7247 | Suitable for real-time QoE scoring |
+| LightGBM Classification | ROC-AUC | 0.9645 | Low QoE event detection |
+| LightGBM Classification | Recall (Low QoE) | 0.92 | Tuned to minimize false negatives |
+| LightGBM Classification | Precision (Low QoE) | 0.46 | Acceptable given SLA cost asymmetry |
+| Congestion effect size | Cohen's d | -2.12 | Largest driver of QoE degradation |
+
+### Top Predictors
+
+1. `latency_ms` - top regression feature; directly maps to perceived user speed
+2. `congestion` (cell-level) - Cohen's d of -2.12 in ANOVA; primary anomaly cluster cause
+3. Network band (L900/L1800/L2100/n78) - capacity and propagation differences drive tier splits
+
+### Strategic Recommendations (from nb 06)
+
+1. Prioritize backhaul expansion at high-congestion cells (effect size evidence)
+2. Latency optimization before throughput scaling (feature importance ordering)
+3. Deploy anomaly model for evening peak (5 PM cluster) early-warning alerts
+4. Regression model (R2 0.72) viable for real-time QoE prediction in CEM dashboards
+
+## Data Engineering
+
+| Attribute | Value |
+|-----------|-------|
+| Data Source | Synthetic (telecom-digital-twin generator) |
+| Tables | `users`, `cells`, `sessions` (Parquet) |
+| Session Features | Throughput, latency, jitter, packet loss, QoE MOS |
+| Cell Features | Tower location, band (L900/L1800/L2100/n78), capacity |
+| User Features | Demographics, device type, plan (prepaid/postpaid) |
+| Validation | Pandera schema at load time (`schemas/v1_0.json`) |
+
+## Architectural Decisions
+
+### 1. Gradient Boosting over Deep Learning
+
+**Decision:** XGBoost and LightGBM instead of neural networks for all supervised tasks.
+
+**Reasoning:** Telecom session data is tabular and heterogeneous with non-linear interaction terms (congestion x signal strength). Tree ensembles handle these natively and expose SHAP attributions that field engineers can act on directly. Neural networks offer no interpretability advantage on this data shape and require substantially more tuning.
+
+### 2. SHAP over Gain-based Feature Importance
+
+**Decision:** SHAP (SHapley Additive Explanations) as the primary attribution method.
+
+**Reasoning:** Standard information-gain metrics are biased toward high-cardinality features. SHAP provides game-theoretic consistency guarantees, allowing a definitive ranking that placed `congestion` above `signal_strength` - directly driving the backhaul expansion recommendation.
+
+### 3. Recall-optimized Threshold for Anomaly Classification
+
+**Decision:** Model threshold tuned to maximize Recall (0.92) at the cost of Precision (0.46) for the Low QoE binary classifier.
+
+**Reasoning:** In network operations, a false negative (missed outage) carries far higher cost than a false positive (unnecessary investigation). The asymmetry justifies accepting lower precision to ensure SLA compliance.
+
+### 4. Temporal Split over K-Fold CV
+
+**Decision:** Chronological 70/15/15 train/val/test split rather than random k-fold.
+
+**Reasoning:** Session data has temporal structure; random splits allow future data to inform past predictions. A temporal split matches the real deployment scenario where the model scores sessions it has never seen chronologically.
+
+## Project Structure
+
+```
+telecom-qoe-analytics/
+├── notebooks/
+│   ├── 01_data_profiling_eda.ipynb        # EDA, schema validation, QoE distribution
+│   ├── 02_statistical_analysis.ipynb      # ANOVA, Cohen's d, causal inference
+│   ├── 03_ml_regression.ipynb             # XGBoost + Optuna, MAE 0.37, R2 0.72
+│   ├── 04_ml_classification.ipynb         # LightGBM + SHAP, ROC-AUC 0.96
+│   ├── 05_unsupervised_timeseries.ipynb   # STL + Isolation Forest
+│   └── 06_executive_summary.ipynb         # Strategic recommendations
+│
+├── src/telecom_qoe_analytics/
+│   ├── data_loader.py                     # Data loading, merging, feature engineering
+│   └── schema.py                          # Pandera schema definitions
+│
+├── data/final/                            # Parquet datasets (gitignored)
+├── schemas/v1_0.json                      # JSON schema for dataset validation
+├── output/                                # Saved figures and model artifacts
+├── pyproject.toml                         # uv/hatch project config
+└── uv.lock                                # Locked dependency tree
+```
+
+## Related Projects
+
+| Project | Description |
+|---------|-------------|
+| [telecom-digital-twin](https://github.com/adityonugrohoid/telecom-digital-twin) | Synthetic telecom network data generator; produces the `users`, `cells`, and `sessions` datasets consumed by this repo |
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the [MIT License](LICENSE).
 
 ## Author
 
-**Adityo Nugroho**  
-- Portfolio: https://adityonugrohoid.github.io  
-- GitHub: https://github.com/adityonugrohoid  
-- LinkedIn: https://www.linkedin.com/in/adityonugrohoid/
+**Adityo Nugroho** ([@adityonugrohoid](https://github.com/adityonugrohoid))
