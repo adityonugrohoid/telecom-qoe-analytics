@@ -2,7 +2,7 @@
 
 # Telecom QoE Analytics
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![uv](https://img.shields.io/badge/uv-package%20manager-blueviolet)](https://github.com/astral-sh/uv)
 [![XGBoost](https://img.shields.io/badge/XGBoost-3.0%2B-orange.svg)](https://xgboost.readthedocs.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -17,9 +17,9 @@
 
 ## Table of Contents
 
+- [The Problem](#the-problem)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
-- [The Problem](#the-problem)
 - [Architecture](#architecture)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
@@ -71,10 +71,10 @@ This project applies a six-phase data science pipeline to synthetic telecom sess
 
 ```mermaid
 graph TD
-    A["telecom-digital-twin<br/>Synthetic Data Generator"] --> B["data/final/<br/>users · cells · sessions (Parquet)"]
-    B --> C["src/telecom_qoe_analytics<br/>data_loader · schema · Pandera validation"]
-    C --> D["01_data_profiling_eda<br/>Distribution · Missing · QoE landscape"]
-    D --> E["02_statistical_analysis<br/>ANOVA · Cohen's d · Causal inference"]
+    A["telecom-digital-twin<br/>Synthetic Data Generator"] --> B["data/final/<br/>users, cells, sessions (Parquet)"]
+    B --> C["src/telecom_qoe_analytics<br/>data_loader, schema, Pandera validation"]
+    C --> D["01_data_profiling_eda<br/>Distribution, Missing, QoE landscape"]
+    D --> E["02_statistical_analysis<br/>ANOVA, Cohen's d, Causal inference"]
     E --> F["03_ml_regression<br/>XGBoost + Optuna (MAE 0.37, R2 0.72)"]
     E --> G["04_ml_classification<br/>LightGBM + SHAP (ROC-AUC 0.96)"]
     E --> H["05_unsupervised_timeseries<br/>STL + Isolation Forest"]
